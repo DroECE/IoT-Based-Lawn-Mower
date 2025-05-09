@@ -448,7 +448,8 @@ void sendLocationViaBluetooth() {
         SerialBT.println(locationData);
         Serial.println("Location sent: " + locationData);
     } else {
-        SerialBT.println("GPS not Available");
+        String NoGpsData = String(0) + "," + String(0);
+        SerialBT.println(NoGpsData);
         Serial.println("Cannot send location: No GPS fix");
     }
 }
@@ -457,14 +458,16 @@ void sendGPSStatus() {
     if (gps.location.isValid()) {
         int satellites = gps.satellites.value();
         float hdop = gps.hdop.hdop();
+        float accuracy = gps.hdop.hdop() * 2.5; // Approximate accuracy in meters
         
-        SerialBT.printf("Satellites: %d, HDOP: %.2f\n", satellites, hdop);
-        Serial.printf("Satellites: %d, HDOP: %.2f\n", satellites, hdop);
+        SerialBT.printf("Satellites: %d, HDOP: %.2f, Accuracy: %.2fm\n", 
+                        satellites, hdop, accuracy);
+        Serial.printf("Satellites: %d, HDOP: %.2f, Accuracy: %.2fm\n", 
+                        satellites, hdop, accuracy);
     } else {
         SerialBT.println("Satellite and HDOP not available");
     }
 }
-
 // Navigation Logic
 void navigateToTarget() {
     if (currentTargetIndex >= 6 || targetLocations[currentTargetIndex].latitude == 0.0 || targetLocations[currentTargetIndex].longitude == 0.0) {
