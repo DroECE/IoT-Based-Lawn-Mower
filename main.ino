@@ -78,7 +78,7 @@ bool useCalibratedMag = true;  // Use calibration values if set to true
 
 bool isCalibrating = false;
 unsigned long calibrationStartTime = 0;
-const unsigned long CALIBRATION_DURATION = 20000; // 20 seconds in milliseconds
+const unsigned long CALIBRATION_DURATION = 10000; // 20 seconds in milliseconds
 float magX_min_temp = 32767;
 float magX_max_temp = -32768;
 float magY_min_temp = 32767;
@@ -127,7 +127,6 @@ void setup() {
 
 void loop() {
     handleBluetooth();
-
     if (isCalibrating) {
         calibrateCompass();
         return;  // Skip other processing while calibrating
@@ -208,7 +207,7 @@ void calibrateCompass() {
     
     // Send feedback every second
     if (timeElapsed % 1000 < 100) {  // Send approx every second
-        SerialBT.printf("Calibrating... %lu seconds remaining\n", timeRemaining);
+        //SerialBT.printf("Calibrating... %lu seconds remaining\n", timeRemaining);
         Serial.printf("Current X: %.2f, Y: %.2f\n", event.magnetic.x, event.magnetic.y);
     }
     
@@ -266,7 +265,7 @@ void parseBluetoothData() {
         sharpRight();  // Start rotating right for calibration
         
         Serial.println("Starting compass calibration...");
-        SerialBT.println("Starting compass calibration. Please wait 20 seconds...");
+        SerialBT.println("Starting compass calibration. Please wait 10 seconds...");
         return;
     }
     
@@ -293,6 +292,8 @@ void parseBluetoothData() {
     // Mode switching and other commands
     if (receivedData == "l") {
         sendLocationViaBluetooth();
+    }else if (receivedData == "st") {
+    sendGPSStatus();
     } else if (receivedData == "s") {
         stopFlag = true;
         stopMotors();
@@ -311,11 +312,11 @@ void parseBluetoothData() {
         manualMode = true;
         stopFlag = true;  // Stop any ongoing autonomous movement
         Serial.println("Entering manual control mode");
-        SerialBT.println("Entering manual control mode");
+     
     } else if (receivedData == "a") {  // Enter autonomous mode
         manualMode = false;
         Serial.println("Entering autonomous mode");
-        SerialBT.println("Entering autonomous mode");
+      
     } else if (manualMode) {  // Handle manual control commands
         switch (receivedData[0]) {
             case '8':  // Forward
@@ -442,19 +443,25 @@ bool isValidCoordinate(float lat, float lon) {
 
 void sendLocationViaBluetooth() {
     if (gps.location.isValid()) {
+        // Format: LAT,LONG
+        String locationData = String(currentLat, 6) + "," + String(currentLong, 6);
+        SerialBT.println(locationData);
+        Serial.println("Location sent: " + locationData);
+    } else {
+        SerialBT.println("GPS not Available");
+        Serial.println("Cannot send location: No GPS fix");
+    }
+}
+
+void sendGPSStatus() {
+    if (gps.location.isValid()) {
         int satellites = gps.satellites.value();
         float hdop = gps.hdop.hdop();
-
-        // Format current location in the new array format
-        SerialBT.printf("Current Location: [[%.6f, %.6f]]\n", 
-                       currentLat, currentLong);
-        SerialBT.printf("Satellites: %d, HDOP: %.2f\n", 
-                       satellites, hdop);
-
-        Serial.printf("Satellites: %d, HDOP: %.2f\n", 
-                     satellites, hdop);
+        
+        SerialBT.printf("Satellites: %d, HDOP: %.2f\n", satellites, hdop);
+        Serial.printf("Satellites: %d, HDOP: %.2f\n", satellites, hdop);
     } else {
-        SerialBT.println("GPS location unavailable.");
+        SerialBT.println("Satellite and HDOP not available");
     }
 }
 
