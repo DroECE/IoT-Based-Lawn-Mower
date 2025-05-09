@@ -8,8 +8,8 @@
 #include "UltrasonicSensors.h"
 
 // Pin Definitions for GPS
-#define GPS_RX_PIN 16   // ESP32 RX Pin
-#define GPS_TX_PIN 17   // ESP32 TX Pin
+#define GPS_RX_PIN 16   // TX of GPS
+#define GPS_TX_PIN 17   // RX of GPS
 
 // Pin Definitions for Compass (HMC5883L I2C)
 #define SDA_PIN 21      // ESP32 SDA Pin
@@ -345,7 +345,6 @@ void parseBluetoothData() {
     }
 }
 
-// Parse multiple target coordinates in format [[lat,long], [lat,long], ...]
 // Parse multiple target coordinates in format [[lat,long], [lat,long], ...]
 void parseTargetLocations(String data) {
     int index = 0;
