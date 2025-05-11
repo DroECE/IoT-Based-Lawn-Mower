@@ -9,7 +9,7 @@
 
 // Speed settings
 #define DEFAULT_SPEED 150      // Default speed (0-255)
-#define TURN_SPEED 120        // Speed durifng turns
+#define TURN_SPEED 140        // Speed durifng turns
 #define SHARP_TURN_SPEED 170  // Speed during sharp turns
 
 // Global instance
@@ -62,11 +62,11 @@ void MotorControl::moveBackward() {
 }
 
 void MotorControl::turnLeft() {
-    // Motor 1 (slower)
-    ledcWrite(PWM_CHANNEL_R1, TURN_SPEED / 4);
-    ledcWrite(PWM_CHANNEL_L1, 0);
+    // Motor 1 (backward)
+    ledcWrite(PWM_CHANNEL_R1, 0);
+    ledcWrite(PWM_CHANNEL_L1, SHARP_TURN_SPEED / 2);
     
-    // Motor 2 (faster)
+    // Motor 2 (forward)
     ledcWrite(PWM_CHANNEL_R2, TURN_SPEED);
     ledcWrite(PWM_CHANNEL_L2, 0);
 }
@@ -76,9 +76,9 @@ void MotorControl::turnRight() {
     ledcWrite(PWM_CHANNEL_R1, TURN_SPEED);
     ledcWrite(PWM_CHANNEL_L1, 0);
     
-    // Motor 2 (slower)
-    ledcWrite(PWM_CHANNEL_R2, TURN_SPEED / 4);
-    ledcWrite(PWM_CHANNEL_L2, 0);
+    // Motor 2 (backward)
+    ledcWrite(PWM_CHANNEL_R2, 0);
+    ledcWrite(PWM_CHANNEL_L2, SHARP_TURN_SPEED / 2);
 }
 
 void MotorControl::sharpLeft() {
