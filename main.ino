@@ -8,19 +8,19 @@
 #include "UltrasonicSensors.h"
 
 // Pin Definitions for GPS
-#define GPS_RX_PIN 16   // ESP32 RX Pin
-#define GPS_TX_PIN 17   // ESP32 TX Pin
+#define GPS_RX_PIN 16   // GPS TX
+#define GPS_TX_PIN 17   // GPS RX
 
 // Pin Definitions for Compass (HMC5883L I2C)
 #define SDA_PIN 21      // ESP32 SDA Pin
 #define SCL_PIN 22      // ESP32 SCL Pin
 
-#define TRIG_PIN_LEFT 12
-#define ECHO_PIN_LEFT 13
-#define TRIG_PIN_MID 14
-#define ECHO_PIN_MID 15
-#define TRIG_PIN_RIGHT 18
-#define ECHO_PIN_RIGHT 19
+#define TRIG_PIN_LEFT 23 // 12 dati -36 test 23 ok
+#define ECHO_PIN_LEFT 13 //pwede
+#define TRIG_PIN_MID 15 //pwede
+#define ECHO_PIN_MID 14 // 15 dati - 39 test 4 ok
+#define TRIG_PIN_RIGHT 18 // pwede
+#define ECHO_PIN_RIGHT 19 //pwede
 
 UltrasonicSensors ultrasonicSensors;
 
@@ -288,11 +288,16 @@ void parseBluetoothData() {
         SerialBT.println("Relay turned OFF");
         return;  // Exit after handling relay command
     }
+
+    else{
+
+    }
     
     // Mode switching and other commands
     if (receivedData == "l") {
         sendLocationViaBluetooth();
-    }else if (receivedData == "st") {
+    }
+    else if (receivedData == "st") {
     sendGPSStatus();
     } else if (receivedData == "s") {
         stopFlag = true;
@@ -328,11 +333,11 @@ void parseBluetoothData() {
                 Serial.println("Manual: Moving Backward");
                 break;
             case '4':  // Left
-                turnLeft();
+                sharpLeft();
                 Serial.println("Manual: Turning Left");
                 break;
             case '6':  // Right
-                turnRight();
+                sharpRight();
                 Serial.println("Manual: Turning Right");
                 break;
             case '5':  // Stop
@@ -345,7 +350,6 @@ void parseBluetoothData() {
     }
 }
 
-// Parse multiple target coordinates in format [[lat,long], [lat,long], ...]
 // Parse multiple target coordinates in format [[lat,long], [lat,long], ...]
 void parseTargetLocations(String data) {
     int index = 0;
