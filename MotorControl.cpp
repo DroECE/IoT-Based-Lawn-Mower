@@ -8,9 +8,9 @@
 #define LPWM_PIN2 33  // Left PWM pin for motor 2
 
 // Speed settings
-#define DEFAULT_SPEED 150      // Default speed (0-255)
-#define TURN_SPEED 140        // Speed durifng turns
-#define SHARP_TURN_SPEED 170  // Speed during sharp turns
+#define DEFAULT_SPEED 200      // Default speed (0-255)
+#define TURN_SPEED 180        // Speed durifng turns
+#define SHARP_TURN_SPEED 200  // Speed during sharp turns
 
 // Global instance
 MotorControl motorControl;
