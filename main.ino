@@ -21,6 +21,13 @@
 #define ECHO_PIN_MID 14 // 15 dati - 39 test 4 ok
 #define TRIG_PIN_RIGHT 18 // pwede
 #define ECHO_PIN_RIGHT 19 //pwede
+#define BT_CHECK_INTERVAL 1000      // Check Bluetooth connection every 1 second
+#define MAX_DISCONNECT_TIME 5000    // Shutdown after 5 seconds of no connection
+
+// Add these variables in the global scope
+unsigned long lastBTCheckTime = 0;     // Last time BT connection was checked
+unsigned long disconnectStartTime = 0;  // When disconnection was first detected
+bool btConnected = false;              // Track Bluetooth connection status
 
 UltrasonicSensors ultrasonicSensors;
 
@@ -126,23 +133,49 @@ void setup() {
 
 
 void loop() {
+    unsigned long currentTime = millis();
+    
+    // Check Bluetooth connection status
+    if (currentTime - lastBTCheckTime >= BT_CHECK_INTERVAL) {
+        lastBTCheckTime = currentTime;
+        
+        // Check if Bluetooth is connected
+        if (!SerialBT.connected()) {
+            if (!btConnected) {  // First time detecting disconnection
+                disconnectStartTime = currentTime;
+                btConnected = false;
+                Serial.println("Bluetooth disconnected. Starting countdown...");
+            } else if (currentTime - disconnectStartTime >= MAX_DISCONNECT_TIME) {
+                // Execute stop command after 5 seconds of disconnection
+                stopFlag = true;
+                stopMotors();
+                digitalWrite(RELAY_PIN, HIGH);  // Turn off relay
+                relayState = false;
+                Serial.println("Bluetooth disconnected for 5 seconds. Executing stop command.");
+                return;
+            }
+        } else {
+            btConnected = true;
+            disconnectStartTime = 0;
+        }
+    }
+    
+    // Continue with existing loop functionality
     handleBluetooth();
     if (isCalibrating) {
         calibrateCompass();
-        return;  // Skip other processing while calibrating
-    }
-
-    if (manualMode) {
-        // In manual mode, all control is handled by parseBluetoothData()
         return;
     }
-
-    // Existing autonomous navigation code
+    
+    if (manualMode) {
+        return;
+    }
+    
     if (stopFlag) {
         stopMotors();
         return;
     }
-
+    
     updateGPS();
     updateCompass();
     navigateToTarget();
